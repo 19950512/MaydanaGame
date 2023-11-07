@@ -43,4 +43,3 @@ class Level:
         # update sprites
         self.visible_sprites.draw(self.display_surface)
         self.visible_sprites.update()
-        debug(self.player.direction)

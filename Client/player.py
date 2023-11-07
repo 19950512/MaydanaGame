@@ -14,6 +14,8 @@ class Player(pygame.sprite.Sprite):
 
         self.obstacle_sprites = obstacle_sprites
 
+        self.last_position = self.direction
+
     def input(self):
         keys = pygame.key.get_pressed()
 
