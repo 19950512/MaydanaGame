@@ -9,7 +9,8 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('Maydana Online')
         self.clock = pygame.time.Clock()
-        self.level = Level(self.screen)
+
+        self.level = Level()
     
     def run(self):
         while True:
@@ -19,7 +20,7 @@ class Game:
                     sys.exit()
 
             self.screen.fill('black')
-            debug('Hello')
+            self.level.run()
             pygame.display.update()
             self.clock.tick(FPS)
 
