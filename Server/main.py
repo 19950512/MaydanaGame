@@ -10,10 +10,37 @@ server_socket.bind((SERVER_IP, SERVER_PORT))
 
 print('Servidor iniciado. Aguardando conexões...')
 
-while True:
-    data, client_address = server_socket.recvfrom(1024)  # Recebe os dados do cliente
-    print(f"Recebido de {client_address}: {data.decode()}")
 
-    # Aqui você pode processar os dados recebidos e enviar respostas se necessário
-    # Por exemplo:
-    # server_socket.sendto(b'Mensagem de resposta', client_address)
+WORLD_MAP = [
+['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],
+['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
+['x',' ','p',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
+['x',' ',' ','x',' ',' ',' ',' ',' ','x','x','x','x','x',' ',' ',' ',' ',' ','x'],
+['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
+['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
+['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
+['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
+['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
+['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
+['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
+['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x','x','x',' ',' ',' ','x'],
+['x',' ',' ',' ',' ',' ',' ','x',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
+['x',' ',' ',' ',' ',' ','x','x','x','x','x',' ',' ',' ',' ',' ',' ',' ',' ','x'],
+['x',' ',' ',' ',' ',' ',' ','x','x','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
+['x',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
+['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
+['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
+['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
+['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],
+]
+
+# Loop para aceitar conexões e enviar o mapa para cada cliente que se conectar
+while True:
+    data, client_address = server_socket.recvfrom(1024)  # Espera por uma conexão
+
+    print('Conexão recebida de:', client_address)
+
+    for row in WORLD_MAP:
+        row_data = ' '.join(row)
+        print('estamos enviando...', row_data)
+        server_socket.sendto(row_data.encode(), client_address)
