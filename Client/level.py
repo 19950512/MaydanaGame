@@ -18,6 +18,9 @@ class Level:
 		self.visible_sprites = YSortCameraGroup()
 		self.obstacle_sprites = pygame.sprite.Group()
 
+		self.players = []
+		self.players.append({'x': 2000, 'y': 1430})
+
 		# sprite setup
 		self.create_map()
 
@@ -48,8 +51,20 @@ class Level:
 							surf = graphics['objects'][int(col)]
 							Tile((x,y),[self.visible_sprites,self.obstacle_sprites],'object',surf)
 
+
+		# mostrar no game os players
+		for player in self.players:
+			self.player = Player((player['x'],player['y']),[self.visible_sprites],self.obstacle_sprites)
+
 		self.player = Player((2000,1430),[self.visible_sprites],self.obstacle_sprites)
+
 	def run(self):
+
+		# update position of the players
+		for player in self.players:
+			self.player.rect.x = player['x']
+			self.player.rect.y = player['y']
+
 		# update and draw the game
 		self.visible_sprites.custom_draw(self.player)
 		self.visible_sprites.update()

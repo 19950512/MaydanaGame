@@ -1,46 +1,63 @@
 import socket
+import pickle
+import threading
 
-# Defina o IP e porta que o servidor vai escutar
-SERVER_IP = '127.0.0.1'  # Substitua pelo IP do servidor
-SERVER_PORT = 5555  # Escolha uma porta disponível
+class Server:
+    def __init__(self):
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind(('localhost', 5555))
+        self.server_socket.listen(2)
 
-# Criação do socket UDP
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-server_socket.bind((SERVER_IP, SERVER_PORT))
+        self.client_sockets = []
+        self.addresses = []
 
-print('Servidor iniciado. Aguardando conexões...')
+    def accept_connections(self):
+        while True:
+            client_socket, address = self.server_socket.accept()
+            print(f"Connection from {address} has been established.")
+            self.client_sockets.append(client_socket)
+            self.addresses.append(address)
 
+    def send_data_to_clients(self, data):
+        serialized_data = pickle.dumps(data)
+        for client_socket in self.client_sockets:
+            client_socket.send(serialized_data)
 
-WORLD_MAP = [
-['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],
-['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
-['x',' ','p',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
-['x',' ',' ','x',' ',' ',' ',' ',' ','x','x','x','x','x',' ',' ',' ',' ',' ','x'],
-['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
-['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
-['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
-['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
-['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
-['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
-['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ','x'],
-['x',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x','x','x',' ',' ',' ','x'],
-['x',' ',' ',' ',' ',' ',' ','x',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
-['x',' ',' ',' ',' ',' ','x','x','x','x','x',' ',' ',' ',' ',' ',' ',' ',' ','x'],
-['x',' ',' ',' ',' ',' ',' ','x','x','x',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
-['x',' ',' ',' ',' ',' ',' ',' ','x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
-['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
-['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
-['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
-['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],
-]
+    def receive_data_from_client(self, client_socket):
+        serialized_data = client_socket.recv(1024)
+        data = pickle.loads(serialized_data)
+        return data
 
-# Loop para aceitar conexões e enviar o mapa para cada cliente que se conectar
-while True:
-    data, client_address = server_socket.recvfrom(1024)  # Espera por uma conexão
+    def receive_data_from_clients(self):
+        all_data = []
+        for client_socket in self.client_sockets:
+            data = self.receive_data_from_client(client_socket)
+            all_data.append(data)
+        return all_data
 
-    print('Conexão recebida de:', client_address)
+    def close_connections(self):
+        for client_socket in self.client_sockets:
+            client_socket.close()
+        self.server_socket.close()
 
-    for row in WORLD_MAP:
-        row_data = ' '.join(row)
-        print('estamos enviando...', row_data)
-        server_socket.sendto(row_data.encode(), client_address)
+    def run_server(self):
+        thread = threading.Thread(target=self.accept_connections)
+        thread.daemon = True  # Permite que a thread seja encerrada quando o programa principal terminar
+        thread.start()
+
+if __name__ == '__main__':
+    print("Server is running...")
+    server = Server()
+    server.run_server()
+
+    while True:
+        received_data = server.receive_data_from_clients()
+
+        # Lógica para processar os dados recebidos
+        data_to_send = {"players": [
+            {"x": 10, "y": 10},
+            {"x": 20, "y": 20}
+        ]}
+        server.send_data_to_clients(data_to_send)
+
+    server.close_connections()
