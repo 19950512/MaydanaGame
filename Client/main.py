@@ -2,14 +2,12 @@ import pygame, sys
 import socket  # Adicionando a biblioteca para comunicação via sockets
 import pickle  # Módulo para serializar/deserializar dados
 from settings import *
-import random
-import time
 from level import Level
 from debug import debug
 class Game:
     def __init__(self):
         pygame.init()
-        pygame.display.set_mode((0, 0))
+        pygame.display.set_mode((800, 800))
         pygame.display.set_caption('Maydana Online')
         self.clock = pygame.time.Clock()
 
@@ -18,6 +16,8 @@ class Game:
         # Inicialização do socket
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect(('localhost', 5555))  # Defina o endereço IP e a porta do servidor
+
+        self.level.create_map()
 
     def send_data(self, data):
         serialized_data = pickle.dumps(data)
@@ -44,8 +44,6 @@ class Game:
 
             #received_data = self.receive_data()
             # Atualize o estado do jogo com as informações recebidas
-
-            #self.level.players[0] = {'x': random.randint(2000, 2100), 'y': random.randint(1430, 1630)}
 
             self.level.run()
 

@@ -2,8 +2,10 @@ from typing import Iterable, Union
 import pygame
 from pygame.sprite import AbstractGroup
 from settings import *
+import random
 from tile import Tile
-from player import Player
+from playercomum import PlayerComum
+from playermain import PlayerMain
 from helper import *
 from random import choice
 from debug import debug
@@ -18,11 +20,10 @@ class Level:
 		self.visible_sprites = YSortCameraGroup()
 		self.obstacle_sprites = pygame.sprite.Group()
 
-		self.players = []
-		self.players.append({'x': 2000, 'y': 1430})
+		self.playersServidor = []
+		self.playersServidor.append({'x': 2010, 'y': 1430})
 
-		# sprite setup
-		self.create_map()
+		self.players = []
 
 	def create_map(self):
 		layouts = {
@@ -53,17 +54,22 @@ class Level:
 
 
 		# mostrar no game os players
-		for player in self.players:
-			self.player = Player((player['x'],player['y']),[self.visible_sprites],self.obstacle_sprites)
+		for player in self.playersServidor:
+			self.players.append(PlayerComum((player['x'], player['y']),[self.visible_sprites],self.obstacle_sprites))
 
-		self.player = Player((2000,1430),[self.visible_sprites],self.obstacle_sprites)
+		self.player = PlayerMain(
+			pos=(2000,1430),
+			groups=[self.visible_sprites],
+			obstacle_sprites=self.obstacle_sprites,
+		)
+
 
 	def run(self):
 
 		# update position of the players
-		for player in self.players:
-			self.player.rect.x = player['x']
-			self.player.rect.y = player['y']
+		# atualizar a posição de cada player da lista self.players.
+		for index,player in enumerate(self.players):
+			player.rect.center = (player.rect.centerx - 1, player.rect.centery)
 
 		# update and draw the game
 		self.visible_sprites.custom_draw(self.player)
